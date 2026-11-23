@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PTFS Player Tools｜玩家小工具站</title>
+  <style>
+    :root {
+      /* 淺藍色與綠色清爽配色 + 柔和紅色點綴 */
+      --sky-50: #f0f9ff;
+      --sky-100: #e0f2fe;
+      --sky-200: #bae6fd;
+      --sky-500: #0ea5e9;
+      --sky-600: #0284c7;
+      --sky-800: #075985;
+
+      --mint-50: #ecfdf5;
+      --mint-100: #d1fae5;
+      --mint-200: #a7f3d0;
+      --mint-500: #10b981;
+      --mint-600: #059669;
+      --mint-800: #065f46;
+
+      --yt-50: #fff5f5;
+      --yt-100: #ffe3e3;
+      --yt-200: #ffc9c9;
+      --yt-500: #ef4444;
+      --yt-600: #dc2626;
+      --yt-700: #b91c1c;
+
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --shadow-sm: 0 2px 8px rgba(14, 165, 233, 0.08);
+      --shadow-md: 0 8px 24px rgba(14, 165, 233, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(160deg, var(--sky-50) 0%, var(--mint-50) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 頂部導覽列 */
+    header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--sky-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--sky-800);
+      cursor: pointer;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--sky-500), var(--mint-500));
+      color: white;
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      background: var(--sky-100);
+      padding: 5px;
+      border-radius: 14px;
+    }
+
+    .nav-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--sky-800);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--sky-500), var(--mint-500));
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+
+    /* 主內容區 */
+    main {
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      flex: 1;
+    }
+
+    .page-section {
+      display: none;
+      animation: fadeIn 0.22s ease;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 首頁橫幅 */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--sky-500) 0%, var(--mint-500) 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .site-kicker {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      margin-bottom: 12px;
+    }
+
+    .hero-banner h1 {
+      font-size: 1.9rem;
+      margin-bottom: 10px;
+    }
+
+    .hero-banner p {
+      font-size: 1.02rem;
+      opacity: 0.96;
+      max-width: 720px;
+      line-height: 1.6;
+    }
+
+    /* 首頁介紹與頻道卡片區 */
+    .home-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 20px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 2px solid var(--sky-200);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .info-card.yt-card {
+      border-color: var(--yt-200);
+      background: linear-gradient(180deg, #ffffff 0%, var(--yt-50) 100%);
+    }
+
+    .yt-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .yt-play-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--yt-500), var(--yt-600));
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.22);
+    }
+
+    .info-card h2 {
+      font-size: 1.25rem;
+      color: var(--sky-800);
+      margin-bottom: 8px;
+    }
+
+    .info-card.yt-card h2 {
+      color: var(--yt-700);
+      margin-bottom: 0;
+    }
+
+    .info-card p {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      line-height: 1.65;
+    }
+
+    .channel-link-box {
+      background: #ffffff;
+      border: 1.5px solid var(--yt-200);
+      border-left: 4px solid var(--yt-500);
+      border-radius: 14px;
+      padding: 13px 16px;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+
+    .channel-link-box a {
+      color: var(--yt-700);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .channel-link-box a:hover {
+      text-decoration: underline;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--sky-500), var(--mint-500));
+      color: white;
+      border: none;
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .yt-btn {
+      background: linear-gradient(135deg, var(--yt-500), var(--yt-600));
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .yt-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Tools 分類頁 */
+    .tools-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 780px) {
+      .tools-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tools-sidebar {
+      background: var(--surface);
+      border: 2px solid var(--sky-200);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--sky-800);
+      margin-bottom: 12px;
+      padding-left: 6px;
+    }
+
+    .tool-menu-item {
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: var(--mint-50);
+      border-left: 4px solid var(--mint-500);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      color: var(--mint-800);
+      cursor: pointer;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tool-coming-soon {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--sky-50);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border: 1px dashed var(--sky-200);
+    }
+
+    .tool-card {
+      background: var(--surface);
+      border: 2px solid var(--sky-200);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tool-card h2 {
+      font-size: 1.4rem;
+      color: var(--sky-800);
+      margin-bottom: 6px;
+    }
+
+    .tool-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--sky-800);
+      margin-bottom: 6px;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--sky-200);
+      background: var(--sky-50);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .form-group select:focus {
+      border-color: var(--mint-500);
+      background: white;
+    }
+
+    /* 路線生成結果區 */
+    .route-result {
+      margin-top: 24px;
+      background: linear-gradient(135deg, var(--sky-50), var(--mint-50));
+      border: 2px solid var(--mint-200);
+      border-radius: 16px;
+      padding: 20px;
+      display: none;
+    }
+
+    .route-result.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .route-steps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .airport-chip {
+      background: white;
+      border: 2px solid var(--sky-500);
+      color: var(--sky-800);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .airport-chip.start {
+      border-color: var(--mint-500);
+      background: var(--mint-100);
+      color: var(--mint-800);
+    }
+
+    .airport-chip.seaplane {
+      border-color: var(--sky-600);
+      background: var(--sky-100);
+      color: var(--sky-800);
+    }
+
+    .airport-chip.military {
+      border-color: var(--mint-600);
+      background: #f0fdf4;
+      color: var(--mint-800);
+    }
+
+    .route-arrow {
+      color: var(--mint-600);
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    .route-extras {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .extra-box {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid var(--sky-200);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text-main);
+    }
+
+    .extra-box strong {
+      display: block;
+      color: var(--sky-800);
+      margin-bottom: 4px;
+    }
+
+    .route-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--sky-200);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      background: white;
+      border: 1.5px solid var(--mint-500);
+      color: var(--mint-800);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: var(--mint-500);
+      color: white;
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="nav-container">
+      <div class="brand" onclick="switchPage('home')">
+        <span class="brand-badge">PTFS</span>
+        <span>PTFS Player Tools</span>
+      </div>
+      <nav>
+        <button class="nav-btn active" id="nav-home" onclick="switchPage('home')">首頁 Home</button>
+        <button class="nav-btn" id="nav-tools" onclick="switchPage('tools')">小工具 Tools</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== 首頁：網站介紹與頻道連結 ==================== -->
+    <section id="page-home" class="page-section active">
+      <div class="hero-banner">
+        <span class="site-kicker">PTFS Player Tools</span>
+        <h1>歡迎來到 PTFS Player Tools</h1>
+        <p>
+          這是專為 Roblox 飛行模擬遊戲 Pilot Training Flight Simulator（PTFS）玩家打造的輕量小工具站。
+          目前提供航線規劃小工具，後續也會持續加入更多實用功能。
+        </p>
+      </div>
+
+      <div class="home-cards">
+        <div class="info-card">
+          <div>
+            <h2>網站介紹</h2>
+            <p>
+              <strong>PTFS Player Tools</strong> 希望讓你在每次起飛前都能快速安排航線、省去挑機場的麻煩。
+              切到上方「小工具 Tools」就能使用路線生成器，支援全 PTFS 機場與基地，並將水上飛機基地另外分開。
+            </p>
+          </div>
+          <div class="action-row">
+            <button class="primary-btn" onclick="switchPage('tools')">前往小工具 Tools</button>
+          </div>
+        </div>
+
+        <div class="info-card yt-card">
+          <div>
+            <div class="yt-title-row">
+              <span class="yt-play-pill">▶ YouTube</span>
+              <h2>創作者 YT 頻道</h2>
+            </div>
+            <p>
+              想看更多 PTFS 飛行紀錄、實況或相關影片，歡迎到我的 YouTube 頻道逛逛：
+            </p>
+            <div class="channel-link-box">
+              <a href="https://www.youtube.com/@bobo-taoyuan618/featured" target="_blank" rel="noopener noreferrer">
+                https://www.youtube.com/@bobo-taoyuan618/featured
+              </a>
+            </div>
+          </div>
+          <div class="action-row">
+            <a class="yt-btn" href="https://www.youtube.com/@bobo-taoyuan618/featured" target="_blank" rel="noopener noreferrer">
+              <span>▶</span>
+              <span>前往 YouTube 頻道</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Tools 分類頁：路線生成器 ==================== -->
+    <section id="page-tools" class="page-section">
+      <div class="tools-layout">
+        <aside class="tools-sidebar">
+          <div class="sidebar-title">Tools 工具分類</div>
+          <button class="tool-menu-item">
+            <span>🧭 路線生成器</span>
+            <span>使用中</span>
+          </button>
+          <div class="tool-coming-soon">
+            ✨ 更多 PTFS Player Tools 實用小工具將於後續版本陸續加入...
+          </div>
+        </aside>
+
+        <div class="tool-card">
+          <h2>PTFS 路線生成器</h2>
+          <p class="tool-desc">收錄全 PTFS 機場與基地（不分大小），並將水上飛機基地另外分開。第一欄可選大型機場、小型機場／跑道、軍用航線或水上飛機基地。</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pool-select">機場分區（大型／小型／軍用／水上飛機）</label>
+              <select id="pool-select" onchange="onPoolChange()">
+                <option value="large">🛫 大型機場（國際／主要民航機場）</option>
+                <option value="small">🛬 小型機場／跑道（小型跑道與訓練場）</option>
+                <option value="military">🛡️ 軍用航線（空軍基地、道路基地與航母）</option>
+                <option value="seaplane">🌊 水上飛機機場（Seaplane Bases 獨立分開）</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="departure-select">出發地（目前所在位置）</label>
+              <select id="departure-select"></select>
+            </div>
+
+            <div class="form-group">
+              <label for="stops-select">航線長度</label>
+              <select id="stops-select"></select>
+            </div>
+          </div>
+
+          <button class="primary-btn" onclick="generateRoute()">生成今日飛行路線</button>
+
+          <div class="route-result" id="route-result">
+            <strong style="color: var(--sky-800);">📋 建議航線規劃：</strong>
+            <div class="route-steps" id="route-steps"></div>
+
+            <div class="route-extras">
+              <div class="extra-box">
+                <strong>✈️ 推薦機型建議</strong>
+                <span id="route-aircraft"></span>
+              </div>
+              <div class="extra-box">
+                <strong>📌 飛行小提醒</strong>
+                <span id="route-tip"></span>
+              </div>
+            </div>
+
+            <div class="route-meta">
+              <span id="route-note"></span>
+              <button class="copy-btn" onclick="copyRouteText()">複製路線文字</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    PTFS Player Tools｜<a href="https://www.youtube.com/@bobo-taoyuan618/featured" target="_blank" rel="noopener noreferrer" style="color: var(--yt-700); font-weight: 700; text-decoration: none;">YouTube 頻道</a>
+  </footer>
+
+  <script>
+    // 1. 大型機場
+    const LARGE_AIRPORTS = [
+      { code: "IRFD", name: "Greater Rockford Airport", area: "Greater Rockford", group: "大型機場" },
+      { code: "IPPH", name: "Perth International Airport", area: "Perth", group: "大型機場" },
+      { code: "ILAR", name: "Larnaca International Airport", area: "Cyprus", group: "大型機場" },
+      { code: "ITKO", name: "Tokyo International Airport", area: "Orenji", group: "大型機場" },
+      { code: "IZOL", name: "Izolirani International Airport", area: "Izolirani", group: "大型機場" },
+      { code: "IKFL", name: "Keflavik International Airport", area: "Grindavik", group: "大型機場" },
+      { code: "IGRV", name: "Grindavik Airport", area: "Grindavik", group: "大型機場" },
+      { code: "IPAP", name: "Paphos International Airport", area: "Cyprus", group: "大型機場" },
+      { code: "ISAU", name: "Sauthemptona Airport", area: "Sauthemptona", group: "大型機場" },
+      { code: "IBTH", name: "Saint Barthélemy Airport", area: "Saint Barthélemy", group: "大型機場" },
+      { code: "IMLR", name: "Mellor International Airport", area: "Greater Rockford", group: "大型機場" }
+    ];
+
+    // 2. 小型機場／跑道
+    const SMALL_AIRPORTS = [
+      { code: "IBAR", name: "Barra Airport", area: "Cyprus", group: "小型機場／跑道" },
+      { code: "IHEN", name: "Henstridge Airfield", area: "Cyprus", group: "小型機場／跑道" },
+      { code: "IDCS", name: "Saba Airport", area: "Orenji", group: "小型機場／跑道" },
+      { code: "ILKL", name: "Lukla Airport", area: "Perth", group: "小型機場／跑道" },
+      { code: "ISKP", name: "Skopelos Airfield", area: "Skopelos", group: "小型機場／跑道" },
+      { code: "ITEY", name: "Pingeyri Airport", area: "Grindavik", group: "小型機場／跑道" },
+      { code: "IBLT", name: "Boltic Airfield", area: "Greater Rockford", group: "小型機場／跑道" },
+      { code: "IJAF", name: "Al Najaf Airfield", area: "Izolirani", group: "小型機場／跑道" },
+      { code: "ITRC", name: "Training Centre", area: "Greater Rockford", group: "小型機場／跑道" }
+    ];
+
+    // 3. 軍用航線（軍用基地／道路基地／航母）
+    const MILITARY_AIRPORTS = [
+      { code: "IGAR", name: "Air Base Garry", area: "Greater Rockford", group: "軍用基地" },
+      { code: "IIAB", name: "McConnell AFB", area: "Cyprus", group: "軍用基地" },
+      { code: "ISCM", name: "RAF Scampton", area: "Izolirani", group: "軍用基地" },
+      { code: "ROAD", name: "Road Base", area: "Izolirani", group: "道路／特種起降點" },
+      { code: "USSG", name: "USS Gerald R. Ford", area: "海上航母", group: "航空母艦" },
+      { code: "HMSQ", name: "HMS Queen Elizabeth", area: "海上航母", group: "航空母艦" }
+    ];
+
+    // 4. 水上飛機機場（Seaplane Bases）獨立分開
+    const SEAPLANE_BASES = [
+      { code: "IWLR", name: "Waterloo Seaplane Base", area: "Greater Rockford", group: "水上飛機基地" },
+      { code: "SHV", name: "Sea Haven Seaplane Base", area: "Sea Haven (近 Perth)", group: "水上飛機基地" },
+      { code: "TVO", name: "Tavaro Seabase", area: "Grindavik", group: "水上飛機基地" }
+    ];
+
+    const ROUTE_GUIDES = {
+      large: {
+        aircraft: "Boeing 737 / 777 / 787、Airbus A320 / A330 / A350 等中大型民航客機",
+        tip: "跑道較長且設施完整，適合練標準進離場、巡航高度與客機起降節奏。",
+        note: "🛫 大型機場航線，適合各類民航客機。",
+        prefix: "[PTFS Player Tools 大型機場航線]"
+      },
+      small: {
+        aircraft: "輕型螺旋槳飛機、小型商務機或短場起降（STOL）機種",
+        tip: "部分跑道較短或地形起伏較大，進場速度不要太快，降落後留意滑行與煞車距離。",
+        note: "🛬 小型機場／跑道航線，注意短跑道與地形限制。",
+        prefix: "[PTFS Player Tools 小型機場航線]"
+      },
+      military: {
+        aircraft: "戰鬥機、軍用運輸機或具備短距／艦載能力的軍機",
+        tip: "若路線包含航母（USSG / HMSQ）或 Road Base，降落前請提前對準跑道中線並控速。",
+        note: "🛡️ 軍用航線，涵蓋空軍基地、道路基地與海上航母。",
+        prefix: "[PTFS Player Tools 軍用航線]"
+      },
+      seaplane: {
+        aircraft: "水上飛機或浮筒／兩棲起降機型",
+        tip: "水面起降請先確認水域淨空與滑行路線，著水時保持平穩下降率。",
+        note: "🌊 水上飛機基地專屬航線（Waterloo / Sea Haven / Tavaro Seabase）。",
+        prefix: "[PTFS Player Tools 水上飛機航線]"
+      }
+    };
+
+    let lastGeneratedRouteText = "";
+
+    function switchPage(pageName) {
+      document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+
+      document.getElementById(`page-${pageName}`).classList.add("active");
+      document.getElementById(`nav-${pageName}`).classList.add("active");
+    }
+
+    function getCurrentPool() {
+      const poolType = document.getElementById("pool-select").value;
+      if (poolType === "seaplane") return SEAPLANE_BASES;
+      if (poolType === "military") return MILITARY_AIRPORTS;
+      if (poolType === "small") return SMALL_AIRPORTS;
+      return LARGE_AIRPORTS;
+    }
+
+    function onPoolChange() {
+      const poolType = document.getElementById("pool-select").value;
+      const pool = getCurrentPool();
+      const depSelect = document.getElementById("departure-select");
+      const stopsSelect = document.getElementById("stops-select");
+
+      depSelect.innerHTML = `<option value="RANDOM">🎲 隨機幫我選出發地</option>`;
+
+      const labelMap = {
+        large: "大型機場",
+        small: "小型機場／跑道",
+        military: "軍用基地／航母",
+        seaplane: "水上飛機基地（Seaplane Bases）"
+      };
+
+      const grp = document.createElement("optgroup");
+      grp.label = labelMap[poolType] || "機場清單";
+      pool.forEach(ap => {
+        const opt = document.createElement("option");
+        opt.value = ap.code;
+        opt.textContent = `${ap.name} (${ap.code}) - ${ap.area}`;
+        grp.appendChild(opt);
+      });
+      depSelect.appendChild(grp);
+
+      const maxLegs = Math.min(4, Math.max(1, pool.length - 1));
+      const prevLegs = parseInt(stopsSelect.value, 10) || 2;
+      stopsSelect.innerHTML = "";
+      for (let i = 1; i <= maxLegs; i++) {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = i === 1 ? "單程直飛（1 段航程）" : `${i} 段航程跳飛（${i} 站）`;
+        if (i === Math.min(prevLegs, maxLegs)) opt.selected = true;
+        stopsSelect.appendChild(opt);
+      }
+
+      document.getElementById("route-result").classList.remove("show");
+    }
+
+    function generateRoute() {
+      const poolType = document.getElementById("pool-select").value;
+      const pool = getCurrentPool();
+      const depCode = document.getElementById("departure-select").value;
+      const legs = parseInt(document.getElementById("stops-select").value, 10);
+
+      let startAirport;
+      if (depCode === "RANDOM") {
+        startAirport = pool[Math.floor(Math.random() * pool.length)];
+      } else {
+        startAirport = pool.find(a => a.code === depCode) || pool[0];
+      }
+
+      const candidates = pool.filter(a => a.code !== startAirport.code);
+      const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+      const selectedStops = shuffled.slice(0, Math.min(legs, shuffled.length));
+      const fullRoute = [startAirport, ...selectedStops];
+
+      const stepsEl = document.getElementById("route-steps");
+      stepsEl.innerHTML = fullRoute.map((ap, idx) => {
+        const classes = ["airport-chip"];
+        if (idx === 0) classes.push("start");
+        if (poolType === "seaplane") classes.push("seaplane");
+        if (poolType === "military") classes.push("military");
+
+        const label = idx === 0
+          ? `🛫 出發：${ap.name} (${ap.code})`
+          : `${ap.name} (${ap.code})`;
+        const arrow = idx < fullRoute.length - 1 ? `<span class="route-arrow">➔</span>` : "";
+        return `<span class="${classes.join(" ")}">${label}</span>${arrow}`;
+      }).join("");
+
+      const guide = ROUTE_GUIDES[poolType] || ROUTE_GUIDES.large;
+      document.getElementById("route-aircraft").textContent = guide.aircraft;
+      document.getElementById("route-tip").textContent = guide.tip;
+      document.getElementById("route-note").textContent = guide.note;
+
+      const routeChain = fullRoute.map(a => `${a.name}(${a.code})`).join(" -> ");
+      lastGeneratedRouteText = `${guide.prefix} ${routeChain}｜建議機型：${guide.aircraft}`;
+
+      document.getElementById("route-result").classList.add("show");
+    }
+
+    function copyRouteText() {
+      if (!lastGeneratedRouteText) return;
+      navigator.clipboard.writeText(lastGeneratedRouteText).then(() => {
+        const btn = document.querySelector(".copy-btn");
+        const old = btn.textContent;
+        btn.textContent = "已複製！";
+        setTimeout(() => btn.textContent = old, 1500);
+      });
+    }
+
+    onPoolChange();
+  </script>
+</body>
+</html>
